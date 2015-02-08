@@ -48,18 +48,25 @@ namespace MSSQLElasticSearchRiver.RiverService
 
                     using (SqlDataReader retrieveDataCommandReader = retrieveDataCommand.ExecuteReader())
                     {
+                        JObject item = null;
                         //Read it from the DB and store in a simple JSON object. 
-                        retrieveDataCommandReader.Read();
-                        var item = new JObject();
-                        for (int i = 0; i < retrieveDataCommandReader.FieldCount; i++)
+
+                        if (retrieveDataCommandReader.Read())
                         {
-                            item[retrieveDataCommandReader.GetName(i)] = new JValue(retrieveDataCommandReader.GetValue(i));
+                            item = new JObject();
+                            for (int i = 0; i < retrieveDataCommandReader.FieldCount; i++)
+                            {
+                                item[retrieveDataCommandReader.GetName(i)] = new JValue(retrieveDataCommandReader.GetValue(i));
+                            }
                         }
 
                         //Foreach river that wants this type of record. Send it. 
                         foreach (var riverRequired in _riverConfiguration.Rivers.Cast<RiverElement>().Where(x => x.DatabaseTable == riverMessage.DatabaseTable))
                         {
-                            var indexReponse = searchClient.Index(riverRequired.ElasticIndex, riverRequired.ElasticType , item.GetValue("Id").ToString(), item.ToString());
+                            if (item != null)
+                                searchClient.Index(riverRequired.ElasticIndex, riverRequired.ElasticType, riverMessage.Id.ToString(), item.ToString());
+                            else
+                                searchClient.Delete(riverRequired.ElasticIndex, riverRequired.ElasticType, riverMessage.Id.ToString());
                         }
                     }
                 }
