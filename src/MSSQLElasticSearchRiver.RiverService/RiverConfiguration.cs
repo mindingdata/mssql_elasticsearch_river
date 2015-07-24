@@ -48,6 +48,9 @@ namespace MSSQLElasticSearchRiver.RiverService
         [ConfigurationProperty("databaseTable", IsRequired=true)]
         public string DatabaseTable { get { return (string)base["databaseTable"]; } }
 
+        [ConfigurationProperty("tableId", IsRequired=true)]
+        public string tableId { get { return (string)base["tableId"]; } }
+
         [ConfigurationProperty("elasticIndex", IsRequired=true)]
         public string ElasticIndex { get { return (string)base["elasticIndex"]; } }
 
