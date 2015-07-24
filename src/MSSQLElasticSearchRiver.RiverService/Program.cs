@@ -43,7 +43,7 @@ namespace MSSQLElasticSearchRiver.RiverService
                         riverMessage = (RiverMessage)serializer.Deserialize(receiveCommandReader.GetXmlReader(0));
 
                         //Get the entire record out of the DB. 
-                        retrieveDataCommand = new SqlCommand(string.Format("SELECT TOP(1) * FROM {0} WHERE Id = {1}", riverMessage.DatabaseTable, riverMessage.Id), sqlConnection);
+                        retrieveDataCommand = new SqlCommand(string.Format("SELECT TOP(1) * FROM {0} WHERE {1} = {2}", riverMessage.DatabaseTable, _riverConfiguration.Rivers.Cast<RiverElement>().First(x => x.DatabaseTable == riverMessage.DatabaseTable).tableId, riverMessage.Id), sqlConnection);
                     }
 
                     using (SqlDataReader retrieveDataCommandReader = retrieveDataCommand.ExecuteReader())
